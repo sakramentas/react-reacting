@@ -1,13 +1,17 @@
 // ----------  ADD PLAYER FORM ------------- //
 // Input to add a new player
+// -- Logical component because they have no dependency on any other components and manage their own state
+
+import React, {Component, PropTypes} from 'react';
 
 class AddPlayerForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            name: "",
-        }
-    }
+    static propTypes: {
+        onAdd: React.PropTypes.func.isRequired
+    };
+
+    state = {
+        name: "",
+    };
 
     onNameChange = (e) => {
         this.setState({name: e.target.value})
@@ -31,8 +35,5 @@ class AddPlayerForm extends React.Component {
     }
 }
 
-AddPlayerForm.propTypes = {
-    onAdd: React.PropTypes.func.isRequired
-};
 
 export {AddPlayerForm as default}

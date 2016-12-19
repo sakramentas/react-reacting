@@ -1,19 +1,21 @@
 import Stats from '../components/Stats.jsx';
+import Stopwatch from '../components/Stopwatch.jsx';
+
+import React, {PropTypes} from 'react';
 
 // ----------  HEADER ------------- //
-class Header extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+// --- Pure component because they act as dependencies to other components and depend on other comp.
 
-    render() {
-        return (
-            <div className="header">
-                <Stats players={this.props.players}/>
-                <h1>{this.props.title}</h1>
-            </div>
-        )
-    }
+const Header = props => {
+
+    return (
+        <div className="header">
+            <Stats players={props.players}/>
+            <h1>{props.title}</h1>
+            <Stopwatch />
+        </div>
+    )
+
 }
 
 Header.propTypes = {
