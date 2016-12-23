@@ -22,7 +22,7 @@ const Player = props => {
         </div>
     )
 
-}
+};
 
 Player.propTypes = {
     name: React.PropTypes.string.isRequired,

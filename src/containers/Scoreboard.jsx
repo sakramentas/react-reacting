@@ -39,47 +39,10 @@ const INITIAL_STATE = {
 // Global variable for a counter to always be increased. So then we'll never have the same ID.
 var nextId = INITIAL_STATE.players.length + 1;
 
-function writeNew() {
-    var userId = firebase.auth().currentUser.uid;
-    return firebase.database().ref('/users/' + userId).once('value').then(function (snapshot) {
-        var username = snapshot.val().username;
-        // ...
-    });
-};
-
 // ----------  APPLICATION ------------- //
 class Scoreboard extends React.Component {
 
     state = INITIAL_STATE;
-
-    componentDidMount() {
-        var elements = [];
-
-        function loadFirebase(elements) {
-            return firebase.database()
-                .ref('/')
-                .once('value')
-                .then((snapshot) => {
-                    elements = snapshot.val();
-                    console.log(elements);
-                    console.log(this);
-                    elements.push({
-                        name: "Laura Palmer",
-                        score: 18,
-                        id: 85,
-                    });
-                })
-
-        }
-
-        // this.props.initialPlayers = loadFirebase();
-
-        console.log(elements.length);
-
-
-        console.log("Initializing");
-
-    };
 
     onScoreChange = (index, delta) => {
         console.log('onScorechange', index, delta);
@@ -94,11 +57,6 @@ class Scoreboard extends React.Component {
             score: 0,
             id: nextId,
         });
-        // firebase.database().set({
-        //     name: name,
-        //     score: 0,
-        //     id: nextId,
-        // })
         this.setState(this.state);
         nextId += 1;
     };
@@ -117,26 +75,26 @@ class Scoreboard extends React.Component {
                     {
                         this.state.players.map((player, index) => {
                             return (
-                                <Player onScoreChange={ delta => {
-                                    this.onScoreChange(index, delta)
-                                }}
-                                        onRemove={() => {
-                                            this.onRemovePlayer(index)
-                                        }} //Anonymous function lost this, so it needs to be binded
-                                        name={player.name}
-                                        score={player.score}
-                                        key={player.id}
+                                <Player
+                                    onScoreChange={ delta => {
+                                        this.onScoreChange(index, delta)
+                                    }}
+                                    onRemove={ () => {
+                                        this.onRemovePlayer(index)
+                                    }}
+                                    name={player.name}
+                                    score={player.score}
+                                    key={player.id}
                                 />
                             );
                         })
                     }
                 </div>
-                <AddPlayerForm onAdd={this.onPlayerAdd}/>
+                <AddPlayerForm onAdd={this.onPlayerAdd} />
             </div>
         );
     };
 }
-;
 
 Scoreboard.propTypes = {
     title: React.PropTypes.string,
@@ -150,8 +108,5 @@ Scoreboard.propTypes = {
 Scoreboard.defaultProps = {
     title: "Scoreboard"
 };
-
-
-// ReactDOM.render(<Application initialPlayers={PLAYERS}/>, document.getElementById('container'));
 
 export {Scoreboard as default}
