@@ -10,18 +10,30 @@
     "css-loader": "^0.26.1",
     "file-loader": "^0.9.0",
     "json-loader": "^0.5.4",
+    "react-hot-loader": "^1.3.1",
     "react-scripts": "0.8.4",
     "style-loader": "^0.13.1",
-    "webpack": "^1.14.0"
+    "webpack": "^1.14.0",
+    "webpack-dev-middleware": "^1.9.0",
+    "webpack-dev-server": "^1.16.2",
+    "webpack-hot-middleware": "^2.15.0"
   },
   "dependencies": {
+    "bootstrap": "^3.3.7",
+    "express": "^4.14.0",
+    "firebase": "^3.6.1",
+    "history": "^1.17.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
+    "react-hot-loader": "^1.3.0",
     "react-redux": "^5.0.1",
-    "redux": "^3.6.0"
+    "react-router": "^4.0.0-alpha.5",
+    "redux": "^3.6.0",
+    "webpack-dev-middleware": "^1.6.1",
+    "webpack-hot-middleware": "^2.10.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node server.js",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",

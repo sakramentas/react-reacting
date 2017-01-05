@@ -5,7 +5,10 @@ var BUILD_DIR = path.resolve(__dirname, 'public');
 var APP_DIR = path.resolve(__dirname, 'src');
 
 var config = {
-    entry: [APP_DIR + '/index.jsx', APP_DIR + '/images/logo.svg'],
+    entry: [
+        'webpack-hot-middleware/client',
+        APP_DIR + '/index.jsx', APP_DIR + '/images/logo.svg'
+    ],
     output: {
         path: BUILD_DIR,
         filename: 'bundle.js'
@@ -15,23 +18,23 @@ var config = {
             {
                 test: /\.jsx?/,
                 include: APP_DIR,
-                loader: 'babel'
+                loaders: ['react-hot', 'babel']
             },
             {
                 test: /\.css$/,
-                loader: "style-loader!css-loader"
+                loader: 'style-loader!css-loader'
             },
             {
                 test: /\.png$/,
-                loader: "url-loader?limit=100000"
+                loader: 'url-loader?limit=100000'
             },
             {
                 test: /\.jpg$/,
-                loader: "file-loader"
+                loader: 'file-loader'
             },
             {
                 test: /\.svg$/,
-                loader: "file-loader"
+                loader: 'file-loader'
             },
             {
                 test: /\.json$/,
@@ -43,6 +46,7 @@ var config = {
         new webpack.ProvidePlugin({
             "React": "react",
         }),
+        new webpack.HotModuleReplacementPlugin()
     ]
 };
 

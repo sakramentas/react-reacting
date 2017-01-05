@@ -8,46 +8,88 @@ import '../styles/App.css';
 // var btnSignUp = document.getElementById('btnSignUp');
 // var btnLogout = document.getElementById('btnLogout');
 
+//
+// const UserAvatar = props => {
+//     return (
+//         <img
+//             className='avatar'
+//             alt={props.name + "'s profile picture"}
+//             src={props.photoUrl}
+//         />
+//     )
+// };
+// UserAvatar.propTypes = {
+//     name: PropTypes.string,
+//     src: PropTypes.string
+// };
+//
+//
+//
+// UserGreeting.propTypes = {
+//     name: PropTypes.string
+// }
 
-const UserAvatar = props => {
-    return (
-        <img
-            className='avatar'
-            alt={props.name + "'s profile picture"}
-            src={props.photoUrl}/>
-    )
-};
-UserAvatar.propTypes = {
-    name: PropTypes.string,
-    src: PropTypes.string
-};
 
-function UserGreeting(props) {
-    return (
-        <span>Hi {props.name}!</span>
-    );
-}
-UserGreeting.propTypes = {
-    name: PropTypes.string
-}
+class Greeting extends Component {
+    constructor(props) {
+        super(props); // auth = true;
+        // this.state = {
+        //     auth: this.state.auth
+        // }
+    }
 
-function GuestGreeting(props) {
-    return <span>You are not signed in.</span>;
-}
+    // guestGreeting = () => {
+    //     return <span>You are not signed in.</span>;
+    // };
 
-function Greeting(props) {
-    if (props.auth) {
+    fetchUserData = () => {
+        const userId = firebase.auth().currentUser.uid;
+        var fetch = () => {
+            var namenew = {};
+            firebase.database().ref('/users/' + userId).once('value')
+                .then(snapshot => {
+                    namenew =  snapshot.val().name;
+                })
+            return fetch.namenew;
+        };
+        console.log('fetch is' + fetch());
+        return { fetch };
+    };
+
+    userGreeting = () => {
+        return <span>Hi {this.fetchUserData().fetch}! </span> ;
+    };
+
+    // getName = (props, name) => {
+    //
+    // };
+    // userAvatar = props => {
+    // return (
+    //     <img
+    //         className='avatar'
+    //         alt={props.name + "'s profile picture"}
+    //         src={props.photoUrl} />
+    // )
+    // };
+
+    render() {
+        // const checkauth = () => {
+        //     if (this.props.auth) {
+        //         return (this.userGreeting);
+        //     }
+        //     return <span>You are not signed in.</span>
+        // };
+
         return (
             <div className='user-meta'>
-                <UserAvatar
-                    name={props.auth.displayName}
-                    photoUrl={props.auth.photoURL}/>
-                <UserGreeting
-                    name={props.auth.displayName}/>
+                {/*<UserAvatar*/}
+                {/*name={props.auth.displayName}*/}
+                {/*photoUrl={props.auth.photoURL}/>*/}
+                { (this.props.auth) ? this.userGreeting() : <span>You are not signed in.</span> }
             </div>
         )
-    }
-    return <GuestGreeting />;
+    };
+
 }
 
 function SignInButton(props) {
@@ -64,7 +106,26 @@ function SignOutButton(props) {
             Sign out
         </button>
     );
-}
+};
+
+
+const RegisterUserForm = () => {
+    return (
+        <div className='auth'>
+            <label name="name">First name</label>
+            <input ref="name" type="name" value={this.state.name} id="txtEmail"/>
+
+            <label name="email">Email</label>
+            <input ref="email" type="email" value={this.state.email} id="txtEmail"/>
+
+            <label name="password">Password</label>
+            <input ref="pass" type="password" id="txtPassword" value={this.state.password}/>
+
+            <Greeting auth={auth}/>
+            <SignInButton onClick={this.handleSignInClick}/>
+        </div>
+    )
+};
 
 
 // ----------  LOGIN FORM ------------- //
@@ -104,72 +165,47 @@ class Login extends React.Component {
         auth.onAuthStateChanged((user) => {
             if (user) {
                 this.setState({auth: user});
-                this.registerUser(user);
+                // this.registerUser(user);
             } else {
                 this.setState({auth: false});
             }
         });
     }
 
-    registerUser(user) {
-        const userRef = firebase.database().ref('users/' + user.uid);
-        userRef.update({
-            name: user.displayName,
-            email: user.email,
-            photoUrl: user.photoURL,
-            lastConnectTime: new Date()
-        });
-    }
+    // registerUser(user) {
+    //     const userRef = firebase.database().ref('users/' + user.uid);
+    //     userRef.update({
+    //         name: user.displayName,
+    //         email: user.email,
+    //         photoUrl: user.photoURL,
+    //         lastConnectTime: new Date()
+    //     });
+    // }
 
     render() {
-        // return (
-        //     <div id="navthing">
-        //         <h2><a href="#" id="loginform">Login</a> | <a href="#">Register</a></h2>
-        //         <div className="login">
-        //             <div className="arrow-up"></div>
-        //             <div className="formholder">
-        //                 <div className="randompad">
-        //                     <fieldset>
-        //                         <label name="email">Email</label>
-        //                         <input type="email" value="" id="txtEmail"/>
-        //
-        //                         <label name="password">Password</label>
-        //                         <input type="password" id="txtPassword"/>
-        //
-        //                         <input type="submit" value="Login" id="btnLogin" onClick={this.loginUser}/>
-        //                         <input type="submit" value="SignUp" id="btnSignUp"/>
-        //                         <input type="submit" value="Logout" id="btnLogout"/>
-        //
-        //                     </fieldset>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //     </div>
-        // );
+
         const auth = this.state.auth;
 
-        let button = null;
-        let form = null;
-        if (auth) {
-            button = <SignOutButton onClick={this.handleSignOutClick}/>;
-        } else {
-            form = () => {
-                return (
-                    <div className='auth'>
-                    <label name="email">Email</label>
-                    <input ref="email" type="email" value={this.state.email} id="txtEmail"/>
-
-                    <label name="password">Password</label>
-                    <input ref="pass" type="password" id="txtPassword" value={this.state.email}/>
-
-                    <Greeting auth={auth}/>
-                    <SignInButton onClick={this.handleSignInClick}/>
-                </div>
-                );
-            }
-        }
         return (
-            {form}
+            <div>
+                {auth ?
+                    <div>
+                        <SignOutButton onClick={this.handleSignOutClick}/>
+                        <Greeting auth={auth}/>
+                    </div>
+                    :
+                    <div className='auth'>
+                        <label name="email">Email</label>
+                        <input ref="email" type="email" value={this.state.email} id="txtEmail"/>
+
+                        <label name="password">Password</label>
+                        <input ref="pass" type="password" id="txtPassword" value={this.state.password}/>
+
+                        <Greeting auth={auth}/>
+                        <SignInButton onClick={this.handleSignInClick}/>
+                    </div>
+                }
+            </div>
         );
 
 
