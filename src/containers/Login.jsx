@@ -1,90 +1,50 @@
 import React, {Component, PropTypes} from 'react';
 import '../styles/App.css';
 
-// Get Elements
-// var txtEmail = document.getElementById('txtEmail');
-// var txtPassword = document.getElementById('txtPassword');
-// var btnLogin = document.getElementById('btnLogin');
-// var btnSignUp = document.getElementById('btnSignUp');
-// var btnLogout = document.getElementById('btnLogout');
 
-//
-// const UserAvatar = props => {
-//     return (
-//         <img
-//             className='avatar'
-//             alt={props.name + "'s profile picture"}
-//             src={props.photoUrl}
-//         />
-//     )
-// };
-// UserAvatar.propTypes = {
-//     name: PropTypes.string,
-//     src: PropTypes.string
-// };
-//
-//
-//
-// UserGreeting.propTypes = {
-//     name: PropTypes.string
-// }
-
-
-class Greeting extends Component {
+class Greeting extends React.Component {
     constructor(props) {
         super(props); // auth = true;
-        // this.state = {
-        //     auth: this.state.auth
-        // }
+        this.state = {
+            name: [],
+            email: [],
+            avatar: [],
+            uid: [],
+        }
     }
 
-    // guestGreeting = () => {
-    //     return <span>You are not signed in.</span>;
-    // };
-
-    fetchUserData = () => {
+    fetchUserData() {
+        // Fetch User data from database
         const userId = firebase.auth().currentUser.uid;
-        var fetch = () => {
-            var namenew = {};
-            firebase.database().ref('/users/' + userId).once('value')
-                .then(snapshot => {
-                    namenew =  snapshot.val().name;
+        firebase.database().ref('/users/' + userId).once('value')
+            .then(snapshot => {
+                this.setState({
+                    name: snapshot.val().name,
+                    avatar: snapshot.val().avatar
                 })
-            return fetch.namenew;
-        };
-        console.log('fetch is' + fetch());
-        return { fetch };
+            });
     };
 
-    userGreeting = () => {
-        return <span>Hi {this.fetchUserData().fetch}! </span> ;
+    componentWillMount() {
+        // If logged fetch user data
+        if (this.props.auth) {
+            return this.fetchUserData();
+        }
     };
 
-    // getName = (props, name) => {
-    //
-    // };
-    // userAvatar = props => {
-    // return (
-    //     <img
-    //         className='avatar'
-    //         alt={props.name + "'s profile picture"}
-    //         src={props.photoUrl} />
-    // )
-    // };
+    userGreeting() {
+        return (
+            <div>
+                <span>Hi { this.state.name } ! </span>
+                <img src={ this.state.avatar } style={{width: '50px', height: '50px'}}/>
+            </div>
+        );
+    };
+
 
     render() {
-        // const checkauth = () => {
-        //     if (this.props.auth) {
-        //         return (this.userGreeting);
-        //     }
-        //     return <span>You are not signed in.</span>
-        // };
-
         return (
             <div className='user-meta'>
-                {/*<UserAvatar*/}
-                {/*name={props.auth.displayName}*/}
-                {/*photoUrl={props.auth.photoURL}/>*/}
                 { (this.props.auth) ? this.userGreeting() : <span>You are not signed in.</span> }
             </div>
         )
@@ -92,7 +52,7 @@ class Greeting extends Component {
 
 }
 
-function SignInButton(props) {
+const SignInButton = props => {
     return (
         <button onClick={props.onClick}>
             Sign in
@@ -100,31 +60,12 @@ function SignInButton(props) {
     );
 }
 
-function SignOutButton(props) {
+const SignOutButton = props => {
     return (
         <button onClick={props.onClick}>
             Sign out
         </button>
     );
-};
-
-
-const RegisterUserForm = () => {
-    return (
-        <div className='auth'>
-            <label name="name">First name</label>
-            <input ref="name" type="name" value={this.state.name} id="txtEmail"/>
-
-            <label name="email">Email</label>
-            <input ref="email" type="email" value={this.state.email} id="txtEmail"/>
-
-            <label name="password">Password</label>
-            <input ref="pass" type="password" id="txtPassword" value={this.state.password}/>
-
-            <Greeting auth={auth}/>
-            <SignInButton onClick={this.handleSignInClick}/>
-        </div>
-    )
 };
 
 
@@ -134,21 +75,21 @@ class Login extends React.Component {
         super(props);
         this.handleSignInClick = this.handleSignInClick.bind(this);
         this.handleSignOutClick = this.handleSignOutClick.bind(this);
+        this.handleRegisterClick = this.handleRegisterClick.bind(this);
         this.state = {
-            auth: false
+            auth: false,
+            newname: [],
+            newemail: []
         };
     };
 
     handleSignInClick() {
-        // const provider = new firebase.auth.GoogleAuthProvider();
         const auth = firebase.auth();
-        // auth.signInWithPopup(provider);
 
         const email = this.refs.email.value;
         const pass = this.refs.pass.value;
 
-        var promise = auth.signInWithEmailAndPassword(email, pass);
-        promise
+        auth.signInWithEmailAndPassword(email, pass)
             .catch(function (e) {
                 console.log(e.message);
             });
@@ -156,13 +97,42 @@ class Login extends React.Component {
     }
 
     handleSignOutClick() {
+        firebase.auth().signOut();
+    };
+
+    handleRegisterClick(user) {
         const auth = firebase.auth();
-        auth.signOut();
+
+        var newname = this.refs.newname.value;
+        var newemail = this.refs.newemail.value;
+        var newpass = this.refs.newpass.value;
+
+        this.setState({
+            newname: newname,
+            newemail: newemail
+        });
+
+        auth.createUserWithEmailAndPassword(newemail, newpass)
+            .then(function(user, newname, newemail) {
+                var newPostKey = firebase.database().ref().child('users').push().user.uid;
+                firebase.database().ref('users/' + user.uid).update({
+                    name: newname,
+                    email: newemail,
+                    lastConnectTime: new Date()
+                });
+            })
+            .catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // ...
+            });
     }
 
-    componentDidMount() { // check to see if already signed in.
+    componentDidMount() {
+        // check to see if already signed in.
         const auth = firebase.auth();
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(user => {
             if (user) {
                 this.setState({auth: user});
                 // this.registerUser(user);
@@ -186,6 +156,7 @@ class Login extends React.Component {
 
         const auth = this.state.auth;
 
+
         return (
             <div>
                 {auth ?
@@ -194,21 +165,36 @@ class Login extends React.Component {
                         <Greeting auth={auth}/>
                     </div>
                     :
-                    <div className='auth'>
-                        <label name="email">Email</label>
-                        <input ref="email" type="email" value={this.state.email} id="txtEmail"/>
+                    <div>
+                        <div className='auth'>
+                            <label name="email">Email</label>
+                            <input ref="email" type="email"  id="txtEmail"/>
 
-                        <label name="password">Password</label>
-                        <input ref="pass" type="password" id="txtPassword" value={this.state.password}/>
+                            <label name="password">Password</label>
+                            <input ref="pass" type="password" id="txtPassword" />
 
-                        <Greeting auth={auth}/>
-                        <SignInButton onClick={this.handleSignInClick}/>
+                            <Greeting auth={auth}/>
+                            <span>Please Login or Register </span>
+
+                            <SignInButton onClick={this.handleSignInClick}/>
+
+                        </div>
+                        <div className='register'>
+                            <label name="newname">First name</label>
+                            <input ref="newname" type="name" id="txtEmail"/>
+
+                            <label name="newemail">Email</label>
+                            <input ref="newemail" type="email" id="txtEmail"/>
+
+                            <label name="newpassword">Password</label>
+                            <input ref="newpass" type="password" id="txtPassword"/>
+
+                            <button onClick={this.handleRegisterClick}> Register</button>
+                        </div>
                     </div>
                 }
             </div>
         );
-
-
     };
 }
 
